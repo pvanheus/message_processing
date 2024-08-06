@@ -10,83 +10,15 @@ from pprint import pprint
 
 from openai import OpenAI
 from sqlmodel import Session
-from sqlalchemy.engine.base import Engine
 from sqlalchemy import select, and_
 
 from message_models import activate_db, Message
-
-
-# system_msg = """
-# You are an academic research assistant. Your goal is to identify the themes in a chat log. You will be provided with the raw chat log,
-# with messages separated by '^^^'. You should identify the top 10 themes in the chat log, and for each theme, provide a short description,
-# rank the themes from most to least important, and show how many messages exemplify each theme. You should also provide no more than three
-# messages that exemplify each theme. For the themes, your output should be in JSON format and for each theme look like this:
-
-# {
-#     theme: string // a single word theme identifier
-#     theme_description: // a short description of the theme
-#     theme_rank: int // the importance of the theme
-#     message_count: int // the number of messages that exemplify the theme
-#     example_messages: string // a list of messages that exemplify the theme
-# }
-
-# """
-
-# system_msg = """
-# You are an academic research assistant. Your goal is to identify the themes in a chat log. The messages in the chat log
-# belong to one of the following themes, where each theme has a one-word identifier:
-
-# 1. antivax: Vaccine Skepticism
-# 2. conspiracy: Conspiracy Theories
-# 3. misinfo: Misinformation about COVID-19 and vaccines
-# 4. antiph: Criticism of public health policies and government responses to the COVID-19 pandemic
-# 5. community: Expressions of solidarity and support among group members who share similar views.
-# 6. altmed: Alternative treatments for COVID-19
-# 7. legal: Concerns regarding the legality and ethics of vaccine mandates and public health measures
-# 8. media: Critique of mainstream media coverage and its role in shaping public perception of the pandemic
-# 9. experience: Sharing of personal stories and experiences related to COVID-19 and vaccines.
-# 10. global: Discussions about the global implications of the pandemic and vaccine rollout.
-
-# Classify each message in the chat log under one of these themes. If a message does not fit any of these themes, you can
-# classify it as 'other'. For each message, provide JSON output in the following format:
-
-# {
-#     date: string // the date the message was sent
-#     user_id: string // the user ID of the message sender
-#     message: string // the message text
-#     theme: string // the theme that the message belongs to
-# }
-# """
-
-system_msg = """
-You are an academic research assistant. Your goal is to identify the themes in a chat log. The messages in the chat log
-belong to one of the following themes, where each theme has a one-word identifier:
-
-1. adv.impacts: claims about adverse impacts resulting from vaccination
-2. vaccine.comp: claims about the composition of the COVID-19 vaccine, e.g. pubeworms, graphene, spike protein, microchip, 5G
-3. conspiracy: links between COVID-19 vaccines and other conspiracy theories
-4. misinfo: claims that scientists are lying, e.g. about COVID-19 numbers, existence of virus, PCR tests, threat of disease
-5. access.info: claims about mainstream media misleading or brainwashing people and shutting down debate
-6. alt.remedies: mentions of alternative remedies such as essential oils, vitamin c, vitamin d, ivermectin, surmanin and other alternative treatments
-7. community: messages for building community and notifying of protests
-
-Classify each message in the chat log under one of these themes. Do not remove duplicates: the total number of messages
-classified should be equal to the number of input messages. If a message does not fit any of these themes, you can
-classify it as 'other'. For each message, provide JSON output in the following format:
-
-{
-    date: string // the date the message was sent
-    user_id: string // the user ID of the message sender
-    message: string // the message text
-    theme: string // the theme that the message belongs to
-}
-"""
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--skip_chatgpt', action='store_true', help='Skip ChatGPT')
     parser.add_argument('db_path', help='Path to the database file')
+    parser.add_argument('system_message_file', type=argparse.FileType(), help='Path to the system message file, used to setup the ChatGPT prompt')
     parser.add_argument('year', type=int, help='Year of the chat log to select')
     parser.add_argument('month', type=int, help='Month of the chat log to select')
     parser.add_argument('start_day', type=int, help='Start day of the chat log to select')
@@ -113,6 +45,7 @@ if __name__ == '__main__':
 
     client = OpenAI()
 
+    system_msg = args.system_message_file.read()
     tasks = []
     for index, message in enumerate(message_strings):
         task = {
