@@ -11,7 +11,8 @@ belong to one of the following themes, where each theme has a one-word identifie
 
 Classify each message in the chat log under one of these themes. Do not remove duplicates: the total number of messages
 classified should be equal to the number of input messages. If a message does not fit any of these themes, you can
-classify it as 'other'. For each message, provide JSON output in the following format:
+classify it as 'other'. For each message, provide JSON output in the following format, ensuring that the JSON fits on a single line and
+that the JSON output is valid JSON:
 
 {
     date: string // the date the message was sent

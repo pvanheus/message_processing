@@ -10,18 +10,18 @@ from tqdm import tqdm
 
 from message_models import activate_db, Link
 
-def resolve_links(engine: Engine) -> set[str]:
+def resolve_links(engine: Engine, timeout=20, max_redirects=5) -> set[str]:
     unresolveable_links = set()
     with Session(engine) as session:
         unresolved_links = session.exec(select(Link.link).where(Link.resolved_link == None).distinct()).all()
         with requests.Session() as requests_session:
-            requests_session.max_redirects = 5
+            requests_session.max_redirects = max_redirects
             for link_row in tqdm(unresolved_links):
                 link = link_row[0]
                 if not link.startswith('http'):
                     link = 'http://' + link
                 try:
-                    response = requests_session.head(link, timeout=20, allow_redirects=True)
+                    response = requests_session.head(link, timeout=timeout, allow_redirects=True)
                     if response.status_code == 200:
                         session.exec(update(Link).where(Link.link == link).values(resolved_link=response.url))
                 except requests.exceptions.RequestException:
@@ -36,5 +36,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     engine = activate_db(args.db_path)
-    unresolveable_links = resolve_links(engine)
+    unresolveable_links = resolve_links(engine, 40, 10)
     json.dump(list(unresolveable_links), open('unresolveable_links.json', 'w', encoding='utf-8'))
