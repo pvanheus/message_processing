@@ -35,8 +35,18 @@ def count_messages(db_path: str, spam_messages: set[str], year: int, month: int,
         return (message_count, total_message_count)
 
 
+def print_output(year: int, month: int, message_count: int, total_message_count: int, output_format: str) -> None:
+    if output_format == 'txt':
+        print(f'Total messages: {total_message_count}')
+        print(f'Non-spam messages: {message_count}')
+        print(f"Non-spam %: {message_count / total_message_count * 100:.2f}%")
+    elif output_format == 'csv':
+        print(f'{year},{month},{total_message_count},{message_count},{message_count / total_message_count * 100:.2f}')
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--output_format', choices=['txt', 'csv'], default='txt', help='Output format')
+    parser.add_argument('--all_months', action='store_true', help='Process all months')
     parser.add_argument('db_path', help='Path to the database file')
     parser.add_argument('spam_message_file', type=argparse.FileType(), help='File of spammy messages to exclude from analysis')
     parser.add_argument('year', type=int, help='Year of the chat log to select')
@@ -47,8 +57,18 @@ if __name__ == '__main__':
 
     spam_messages = load_spam_file(args.spam_message_file)
 
-    message_count, total_message_count = count_messages(args.db_path, spam_messages, args.year, args.month, args.start_day, args.end_day)
-    print(f'Year: {args.year}, Month: {args.month}, Start Day: {args.start_day}, End Day: {args.end_day}')
-    print(f'Total messages: {total_message_count}')
-    print(f'Non-spam messages: {message_count}')
-    print(f"Non-spam %: {message_count / total_message_count * 100:.2f}%")
+    if args.output_format == 'csv':
+        print('Year,Month,Total messages,Non-spam messages,Non-spam %')
+    if args.all_months:
+        for year in range(2021, 2025):
+            for month in range(1, 13):
+                if (year == 2021 and month < 5) or (year == 2024 and month > 5):
+                    # our range is from May 2021 to May 2024
+                    continue                
+                message_count, total_message_count = count_messages(args.db_path, spam_messages, year, month, 10, 17)
+                print_output(year, month, message_count, total_message_count, args.output_format)
+    else:
+        message_count, total_message_count = count_messages(args.db_path, spam_messages, args.year, args.month, args.start_day, args.end_day)
+        print_output(args.year, args.month, message_count, total_message_count, args.output_format)
+
+

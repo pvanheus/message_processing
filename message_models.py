@@ -23,6 +23,7 @@ class Message(SQLModel, table=True):
     duration_seconds: int | None = None
     width: int | None = None
     height: int | None = None
+    anon_from_id: str | None = None
 
 
 class Link(SQLModel, table=True):

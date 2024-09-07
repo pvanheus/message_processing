@@ -54,7 +54,7 @@ def run_job(year: int, month: int, start_day: int, end_day: int, results_filenam
         sys.exit(1)
     batch_id = batch_id_match.group(1)
     job = Job(id=batch_id, status=StateEnum.in_progress, year=year, month=month, start_day=start_day, end_day=end_day,
-              results_file=results_filename)
+              results_file=results_filename, start_message_num=start_message_num, end_message_num=start_message_num + batch_size)
     session.add(job)
     session.commit()
     return job
