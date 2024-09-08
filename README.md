@@ -27,6 +27,8 @@ The `anonymize_from_id.py` script adds anonymous IDs so that the real Telegram u
 
 `plot_results.ipynb` creates the plots used in the paper.
 
+`prepare_messages_for_publication.py` consolidates all the messages that have been processed and ensures that no known spam is included and ensures that user IDs are anonymous.
+
 These scripts are historic and were not used in the final analysis:
 
 `thread_stats.py` computes some statistics on the threads (i.e. chains of replies) in the messages

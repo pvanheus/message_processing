@@ -14,6 +14,7 @@ def message_key(date_str: str) -> str:
     return year * 10000 + month * 100 + day
 
 def build_user_id_mapping(message_db_path: str) -> dict[str, str]:
+    """Build a mapping from from_id to anon_from_id"""
     engine = create_engine(f"sqlite:///{message_db_path}")
     with Session(engine) as session:
         query = select(Message.from_id, Message.anon_from_id).distinct()
