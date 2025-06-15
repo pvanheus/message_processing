@@ -41,7 +41,7 @@ if __name__ == '__main__':
     with Session(engine) as session:
         query = select(Message).where(and_(Message.year == args.year, Message.month == args.month,
                                            Message.day >= args.start_day, Message.day <= args.end_day))
-        messages = session.exec(query).all()
+        messages = session.exec(query).all()  # type: ignore
         count = 0
         for message_row in messages:
             message = message_row[0]
