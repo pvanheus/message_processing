@@ -2,7 +2,7 @@ from sqlalchemy.engine.base import Engine
 from sqlmodel import SQLModel, Field, create_engine
 
 class Message(SQLModel, table=True):
-    __tablename__ = "messages"
+    __tablename__: str = "messages"
     id: int = Field(primary_key=True)
     date: str
     date_unixtime: int = Field(index=True)
@@ -27,7 +27,7 @@ class Message(SQLModel, table=True):
 
 
 class Link(SQLModel, table=True):
-    __tablename__ = "links"
+    __tablename__: str = "links"
     id: int = Field(primary_key=True)
     message_id: int = Field(foreign_key="messages.id")
     link: str
