@@ -23,7 +23,7 @@ class Outputs:
     start_day: int
     end_day: int
 
-def year_month_key(yearmonth: str) -> str:
+def year_month_key(yearmonth: str) -> int:
     year = int(yearmonth[:4])
     month = int(yearmonth[4:])
     return year * 100 + month
@@ -62,7 +62,7 @@ if __name__ == '__main__':
                     outputs[key].end_day = job.end_day
             outputs[key].num_jobs = num_jobs
 
-            reader = csv.DictReader(open(job.results_file))
+            reader = csv.DictReader(open(job.results_file)) # type: ignore - all completed jobs have results files
             themes = set(["access.info", "adv.impacts", "alt.remedies", "community", "conspiracy", "misinfo", "other", "vaccine.comp"])
             theme_count = {theme: 0 for theme in themes}
             
