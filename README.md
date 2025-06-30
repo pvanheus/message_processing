@@ -8,6 +8,7 @@ Dependencies:
 * altair - used for drawing graphs
 * requests - used to resolve links
 * openai - OpenAI API interface
+* krippendorff - Fast computation of Krippendorff's alpha
 
 The `message_models.py` contains the Message and Link models and is used by all other code.
 
@@ -37,3 +38,4 @@ These scripts are historic and were not used in the final analysis:
 
 `visualise.ipynb` has some early experiments in visualisation of the data
 
+`compute_k_alpha.py` computes Krippendorff's alpha from a file of manually coded and ChatGPT coded messages
